@@ -1,21 +1,51 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { createStackNavigator } from "react-navigation-stack";
+import { createAppContainer,createSwitchNavigator } from "react-navigation";
+import { createBottomTabNavigator } from "react-navigation-tabs";
+import SigninScreen from './src/screens/SigninScreen';
+import SignupScreen from './src/screens/SignupScreen';
+import { Provider } from './src/context/AuthContext';
+import {setNavigator} from './src/NavigationRef';
+import TodoListScreen  from "./src/screens/TodoListScreen";
+import AccountScreen from './src/screens/AccountScreen';
+import ResolveAuthScreen from './src/screens/ResolveAuthScreen';
+import {Provider as TodoListProvider } from './src/context/TodoListContext';
+import TodoDetailScreen from './src/screens/TodoDetailScreen';
+import TodoListCreateScreen from './src/screens/TodoListCreateScreen';
+import TodoListEditScreen from './src/screens/TodoListEditScreen';
+import { FontAwesome } from "@expo/vector-icons";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+const todolistFlow = createStackNavigator({
+  Todolist: TodoListScreen,
+  TodoDetail:TodoDetailScreen,
+  TodoListCreate: TodoListCreateScreen,
+  TodoListEdit:TodoListEditScreen
+});
+
+todolistFlow.navigationOptions ={
+  title:'Your Todo List',
+  tabBarIcon : <FontAwesome size={20} name="th-list" />
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+const switchNavigator = createSwitchNavigator({
+  ResolveAuth:ResolveAuthScreen,
+  loginFlow:createStackNavigator({
+    Signup:SignupScreen,
+    Signin :SigninScreen
+  }),
+  mainFlow:createBottomTabNavigator({
+    todolistFlow,
+    AccountScreen: AccountScreen
+  })
 });
+
+
+const App= createAppContainer(switchNavigator);
+
+export default ()=>{
+  return <Provider>
+    <TodoListProvider>
+      <App ref={(navigator)=>setNavigator(navigator)} />
+    </TodoListProvider>
+  </Provider>
+}
